@@ -14,7 +14,6 @@ RUN apt-get update \
         libgcc1 \
         curl \
         git
-COPY G:\PowerShell-DSC-for-Linux\releaseBuild\Images\microsoft_dsc_ubuntu16.04\test.ps1 /
 
 # Use PowerShell as the default shell
 ENTRYPOINT [ "pwsh" ]
