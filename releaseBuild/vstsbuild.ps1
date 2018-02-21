@@ -74,9 +74,10 @@ End {
     $psReleaseBranch = 'master'
     $psReleaseFork = 'PowerShell'
     $location = Join-Path -Path $PSScriptRoot -ChildPath 'PSRelease'
-    if(Test-Path $location)
+    $dscbldlocation = Join-Path -Path $PSScriptRoot -ChildPath 'bld-dsc'
+    if(Test-Path $dscbldlocation)
     {
-        Remove-Item -Path $location -Recurse -Force
+        Remove-Item -Path $dscbldlocation -Recurse -Force
     }
 
     $gitBinFullPath = (Get-Command -Name git).Source
@@ -85,12 +86,15 @@ End {
         throw "Git is required to proceed. Install from 'https://git-scm.com/download/win'"
     }
 
-    Write-Verbose "cloning -b $psReleaseBranch --quiet https://github.com/$psReleaseFork/PSRelease.git" -verbose
-    & $gitBinFullPath clone -b $psReleaseBranch --quiet https://github.com/$psReleaseFork/PSRelease.git $location
+   # Write-Verbose "cloning -b $psReleaseBranch --quiet https://github.com/$psReleaseFork/PSRelease.git" -verbose
+   # & $gitBinFullPath clone -b $psReleaseBranch --quiet https://github.com/$psReleaseFork/PSRelease.git $location
+
+    Write-Verbose "cloning -b $psReleaseBranch --quiet https://github.com/Microsoft/Build-PowerShell-DSC-for-Linux.git" -verbose
+    & $gitBinFullPath clone --quiet https://github.com/Microsoft/Build-PowerShell-DSC-for-Linux.git $dscbldlocation
 
     Push-Location -Path $PWD.Path
     try{
-        Set-Location $location
+        Set-Location $dscbldlocation
         & $gitBinFullPath  submodule update --init --recursive --quiet
     }
     finally
@@ -103,9 +107,9 @@ End {
 
     try
     {
-        Write-Verbose "Starting build at $resolvedRepoRoot  ..." -Verbose
-        Import-Module "$location/vstsBuild" -Force
-        Import-Module "$location/dockerBasedBuild" -Force
+        Write-Verbose "Starting build at $PSScriptRoot " -Verbose
+        Import-Module "$PSScriptRoot/vstsBuild" -Force
+        Import-Module "$PSScriptRoot/dockerBasedBuild" -Force
         Clear-VstsTaskState
 
         $buildParameters = @{
